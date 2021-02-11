@@ -3,8 +3,11 @@ import ustruct
 
 import settings
 
-from node import LoRaWANNode
+from lorawan import LoRaWAN
 from ruuvitag.scanner import RuuviTagScanner
+
+
+LoRaWAN.DEBUG = settings.DEBUG
 
 
 def pack_temp(temp):
@@ -35,13 +38,15 @@ def main():
         payload = payload + bytes([id_payload]) + temp_payload + hum_payload
 
     print('setup lorawan')
-    node = LoRaWANNode(settings.NODE_APP_EUI, settings.NODE_APP_KEY)
+    node = LoRaWAN(settings.NODE_APP_EUI, settings.NODE_APP_KEY)
 
     print('send payload')
     node.send(payload)
+    node.shutdown()
 
-    print('enter deepsleep for {} ms'.format(settings.NODE_DEEPSLEEP))
-    machine.deepsleep(settings.NODE_DEEPSLEEP)
+    print('enter deepsleep for {} seconds'.format(settings.NODE_DEEPSLEEP))
+    machine.deepsleep(settings.NODE_DEEPSLEEP * 1000)
 
 
-main()
+if __name__ == "__main__":
+    main()
