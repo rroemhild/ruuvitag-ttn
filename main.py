@@ -21,23 +21,27 @@ def pack_hum(hum):
     return hum_int16
 
 
-payload = b''
+def main():
+    payload = b''
 
-rts = RuuviTagScanner(settings.RUUVITAGS)
+    rts = RuuviTagScanner(settings.RUUVITAGS)
 
-# get all data and prepare payload
-print('harvest ruuvitags')
-for ruuvitag in rts.find_ruuvitags(timeout=settings.TIMEOUT):
-    id_payload = settings.RUUVITAGS.index(ruuvitag.mac.encode())
-    temp_payload = pack_temp(ruuvitag.temperature)
-    hum_payload = pack_hum(ruuvitag.humidity)
-    payload = payload + bytes([id_payload]) + temp_payload + hum_payload
+    # get all data and prepare payload
+    print('harvest ruuvitags')
+    for ruuvitag in rts.find_ruuvitags(timeout=settings.TIMEOUT):
+        id_payload = settings.RUUVITAGS.index(ruuvitag.mac.encode())
+        temp_payload = pack_temp(ruuvitag.temperature)
+        hum_payload = pack_hum(ruuvitag.humidity)
+        payload = payload + bytes([id_payload]) + temp_payload + hum_payload
 
-print('setup lorawan')
-node = LoRaWANNode(settings.NODE_APP_EUI, settings.NODE_APP_KEY)
+    print('setup lorawan')
+    node = LoRaWANNode(settings.NODE_APP_EUI, settings.NODE_APP_KEY)
 
-print('send payload')
-node.send(payload)
+    print('send payload')
+    node.send(payload)
 
-print('enter deepsleep for {} ms'.format(settings.NODE_DEEPSLEEP))
-machine.deepsleep(settings.NODE_DEEPSLEEP)
+    print('enter deepsleep for {} ms'.format(settings.NODE_DEEPSLEEP))
+    machine.deepsleep(settings.NODE_DEEPSLEEP)
+
+
+main()
