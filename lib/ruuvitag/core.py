@@ -71,11 +71,11 @@ class RuuviTag:
             data = adv.data.decode("utf-8")
             index = data.find("ruu.vi/#")
             if index > -1:
-                return data[(index + 8):]
+                return data[(index + 8) :]
             else:
                 index = data.find("r/")
                 if index > -1:
-                    return data[(index + 2):]
+                    return data[(index + 2) :]
                 return None
         except Exception:
             return None
@@ -111,7 +111,8 @@ class RuuviTag:
 
         return (data[2], data)
 
-    def decode_data(self, data_format, data):
+    @staticmethod
+    def decode_data(data_format, data):
         if data_format in (2, 4):
             return decode_data_format_2and4(data)
         elif data_format == 3:
