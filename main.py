@@ -1,53 +1,48 @@
 import machine
-
 import settings
 
-from ustruct import pack
 from lorawan import LoRaWAN
 from ruuvitag.scanner import RuuviTagScanner
+
+from app.encoder import encode_battery, encode_humid, encode_temp
 
 
 LoRaWAN.DEBUG = settings.DEBUG
 
 
-def pack_temp(temp):
-    """Temperature in 0.005 degrees as signed short"""
-    temp_conv = round(round(temp, 2) / 0.005)
-    return pack("!h", temp_conv)
-
-
-def pack_humid(hum):
-    """Humidity in 0.0025 percent as unsigned short"""
-    hum_conv = round(round(hum, 2) / 0.0025)
-    return pack("!H", hum_conv)
-
-
 def main():
+    # Payload buffer
     payload = b""
 
+    # Initialize  bluetooth and ruuvitag scanner
     rts = RuuviTagScanner(settings.RUUVITAGS)
 
-    # get all data and prepare payload and add them to the payload
+    # Scan for whitelisted RuuviTags and add sensor data as bytes to the payload buffer.
+    # Each tag wil be identified by his index from the whitelist
+    # Sensor data: termperature, humidity, battery voltage and RSSI
     print("Scan for ruuvitags")
     for ruuvitag in rts.find_ruuvitags(timeout=settings.TIMEOUT):
-        id_payload = settings.RUUVITAGS.index(ruuvitag.mac.encode())
+        ruuvitag_id = settings.RUUVITAGS.index(ruuvitag.mac.encode())
         payload = (
             payload
-            + bytes([id_payload])
-            + pack_temp(ruuvitag.temperature)
-            + pack_humid(ruuvitag.humidity)
-            + pack("!H", ruuvitag.battery_voltage - 1600)  # battery
+            + bytes([ruuvitag_id])
+            + encode_temp(ruuvitag.temperature)
+            + encode_humid(ruuvitag.humidity)
+            + encode_battery(ruuvitag.battery_voltage)
             + bytes([ruuvitag.rssi * -1])  # rssi
         )
 
-    print("Setup lorawan")
+    print("Setup LoRaWAN node")
     node = LoRaWAN(settings.NODE_APP_EUI, settings.NODE_APP_KEY)
 
-    print("Send payload")
-    node.send(payload)
+    print("Send payload on port=1")
+    node.send(payload, port=1)
+
+    print("Shutdown LoRaWAN node")
     node.shutdown()
 
-    if settings.DEBUG is False:
+    # Do not enter deepsleep if DEBUG is true
+    if not settings.DEBUG:
         print("Enter deepsleep for {} seconds".format(settings.NODE_DEEPSLEEP))
         machine.deepsleep(settings.NODE_DEEPSLEEP * 1000)
 
