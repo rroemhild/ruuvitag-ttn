@@ -6,13 +6,6 @@ from ubinascii import hexlify, unhexlify
 from .constants import DONWLINK_CFG_PORT, DOWNLINK_DSTIME, DOWNLINK_SCAN_TIMEOUT, NVS_DSTIME, NVS_BTOUT
 
 
-# Dwonlinks to implement
-# . re-join
-# . sleep time
-# . scan timeout
-# add/remove mac
-
-
 def set_deepsleep(dstime):
     dstime = max(dstime, 30)  # Minimum is 30 seconds
     print("Set delay to {} seconds".format(dstime))
