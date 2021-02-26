@@ -8,7 +8,7 @@ from network import LoRa
 from ruuvitag.scanner import RuuviTagScanner
 
 from app.encoder import encode_battery, encode_humid, encode_temp
-from app.donwlink import process_downlink
+from app.downlink import process_downlink
 from app.constants import NVS_DSTIME, NVS_BTOUT
 
 
