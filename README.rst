@@ -88,7 +88,7 @@ Combined downlink
 
 The config downlinks can be combined in one downlink.
 
-***Example:** Set the sleeptimer to 30 seconds and the scan timeout to 5 seconds ``01001e0205``
+**Example:** Set the sleeptimer to 30 seconds and the scan timeout to 5 seconds ``01001e0205``
 
 +----+---------+-----+---------+
 | ID | Seconds | ID  | Seconds |

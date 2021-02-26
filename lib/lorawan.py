@@ -1,8 +1,8 @@
+import logging
 import usocket
 import ubinascii
 
 from network import LoRa
-
 
 def get_device_eui():
     lora = LoRa(mode=LoRa.LORAWAN)
@@ -15,9 +15,6 @@ def lora_erase():
 
 
 class LoRaWAN:
-
-    DEBUG = False
-
     def __init__(self, app_eui, app_key, region=LoRa.EU868, sf=7, adr=True, dr=5, timeout=15):
         """Setup LoRaWAN"""
         self._timeout = timeout
@@ -25,6 +22,7 @@ class LoRaWAN:
         self._app_key = ubinascii.unhexlify(app_key)
         self._socket = None
         self._dr = dr
+        self.log = logging.getLogger("lorawan")
         self.lora = LoRa(mode=LoRa.LORAWAN, region=region, sf=sf, adr=adr)
         self.setup()
 
@@ -38,7 +36,7 @@ class LoRaWAN:
             self.open_socket()
 
     def join(self):
-        self.dprint("Send join request")
+        self.log.debug("Send join request")
         timeout = self._timeout * 1000
         self.lora.join(
             activation=LoRa.OTAA,
@@ -50,7 +48,7 @@ class LoRaWAN:
         if self.lora.has_joined():
             self.lora.nvram_save()
             self.open_socket()
-            self.dprint("Joined network")
+            self.log.debug("Joined network")
 
     def open_socket(self, timeout=6):
         self._socket = usocket.socket(usocket.AF_LORA, usocket.SOCK_RAW)
@@ -69,7 +67,7 @@ class LoRaWAN:
         if self.lora.has_joined():
             if isinstance(payload, (float, str, int)):
                 payload = bytes([payload])
-            self.dprint("Send payload: {}".format(payload))
+            self.log.debug("Send payload: {}".format(payload))
             self._socket.setblocking(True)
             self._socket.send(payload)
             self._socket.setblocking(False)
@@ -78,14 +76,10 @@ class LoRaWAN:
     def recv(self, rbytes=1):
         """Receive bytes from downlink"""
         retval = self._socket.recvfrom(rbytes)
-        self.dprint("Recv payload: {}, port: {}".format(retval[0], retval[1]))
+        self.log.debug("Recv payload: {}, port: {}".format(retval[0], retval[1]))
         return retval
 
     def shutdown(self):
         """Shutdown LoRa modem"""
         self._socket.close()
         self.lora.power_mode(LoRa.SLEEP)
-
-    def dprint(self, message):
-        if self.DEBUG:
-            print("LoRaWAN: {}".format(message))

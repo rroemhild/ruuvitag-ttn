@@ -1,3 +1,8 @@
+import logging
+
+# Log level, set to logging.DEBUG to log to REPL
+logging.basicConfig(level=logging.INFO)
+
 # Disable deepsleep
 DEBUG = False
 
