@@ -38,23 +38,19 @@ class LoRaWAN:
             self.open_socket()
 
     def join(self):
-        try:
-            self.dprint("Send join request")
-            timeout = self._timeout * 1000
-            self.lora.join(
-                activation=LoRa.OTAA,
-                auth=(self._app_eui, self._app_key),
-                timeout=timeout,
-                dr=self._dr,
-            )
+        self.dprint("Send join request")
+        timeout = self._timeout * 1000
+        self.lora.join(
+            activation=LoRa.OTAA,
+            auth=(self._app_eui, self._app_key),
+            timeout=timeout,
+            dr=self._dr,
+        )
 
-            if self.lora.has_joined():
-                self.lora.nvram_save()
-                self.open_socket()
-                self.dprint("Joined network")
-        except LoRa.timeout:
-            self.dprint("Timeout error")
-            raise
+        if self.lora.has_joined():
+            self.lora.nvram_save()
+            self.open_socket()
+            self.dprint("Joined network")
 
     def open_socket(self, timeout=6):
         self._socket = usocket.socket(usocket.AF_LORA, usocket.SOCK_RAW)

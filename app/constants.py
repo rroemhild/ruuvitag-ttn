@@ -1,0 +1,7 @@
+DONWLINK_CFG_PORT = const(1)
+
+DOWNLINK_DSTIME = const(1)
+DOWNLINK_SCAN_TIMEOUT = const(2)
+
+NVS_DSTIME = "dstime"
+NVS_BTOUT = "btout"

@@ -9,7 +9,7 @@ NODE_APP_KEY = ''
 NODE_DEEPSLEEP = 300
 
 # Bluetooth scan timeout
-TIMEOUT = 10
+NODE_SCAN_TIMEOUT = 10
 
 # RuuviTags whitelist, other tags will be ignored, all lowercase
 # RUUVITAGS = [b'aa:bb:02:03:04:05', b'aa:ab:12:13:14:15']

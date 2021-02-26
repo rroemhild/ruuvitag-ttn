@@ -7,8 +7,8 @@ This repository contains the up to date snippets for the `Publish RuuviTag senso
 This PoC uses settings specifically for connecting to LoRaWAN networks within the European 868 MHz region. For other regions usage, please see the `settings.py` and `lib/lorawan.py` file for relevant sections that need to be changed.
 
 
-Data Format
------------
+Uplink data format
+------------------
 
 For each RuuviTag we send 8 bytes. The RuuviTag ID is the index from the mac address in the `settings.py` list. We match this later in the decoder.
 
@@ -39,6 +39,62 @@ In example for 2 RuuviTags the following payload will be send:
 +----+------+--------+---------+------+----+------+--------+---------+------+
 
 Read more about the data format used in this project in the `Ruuvi Sensor Data Format 5 Protocol Specification <https://github.com/ruuvi/ruuvi-sensor-protocols#data-format-5-protocol-specification>`_.
+
+
+
+Downlink format
+---------------
+
+The device can be configured by downlink. Currently only the settings ``NODE_DEEPSLEEP`` and ``NODE_SCAN_TIMEOUT`` are supported.
+
+
+Config downlink
++++++++++++++++
+
+Port 1 is used to configure the device settings. Every setting has a bytes that identifies the payload.
+
+Device deepsleep timer
+~~~~~~~~~~~~~~~~~~~~~~
+
+The deepsleep timer setting use 3 bytes. First byte indicates the deepsleep timer config and must be set to ``1``, followed by 2 bytes (16bit unsigned) for the seconds. Minimum sleeptime is 30 seconds.
+
+**Example:** Set the deepsleep timer to 30 seconds ``01001e``.
+
++----+---------+
+| ID | Seconds |
++====+=========+
+| 01 | 001e    |
++----+---------+
+
+
+Device scan timeout
+~~~~~~~~~~~~~~~~~~~
+
+The bluetooth scan timeout defines how long the lib should listen for Ruuvitag data. Higher timeout may find Ruuvitags that are farer away from the device, with the cost of more energy consumtion.
+
+The scan timeout settings use 2 bytes. Teh first byte indicates the scan timeout and must be set to ``2``, follow by 1 byte for for the seconds. Minimum scan timeout is 1 second.
+
+**Example:** Set the bluetooth scan timeout to 4 seconds ``0205``.
+
++----+---------+
+| ID | Seconds |
++====+=========+
+| 01 | 001e    |
++----+---------+
+
+
+Combined downlink
+~~~~~~~~~~~~~~~~~
+
+The config downlinks can be combined in one downlink.
+
+***Example:** Set the sleeptimer to 30 seconds and the scan timeout to 5 seconds ``01001e0205``
+
++----+---------+-----+---------+
+| ID | Seconds | ID  | Seconds |
++====+=========+=====+=========+
+| 01 | 001e    | 02  | 05      |
++----+---------+-----+---------+
 
 
 Payload Format Decoder
